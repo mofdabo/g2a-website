@@ -3,12 +3,14 @@ import csv
 import re
 from PxPUC.models import Problematic_Sentence
 from PxPUC.models import Location
+from django.conf import settings
 
 def run():
     r = 0
-    with os.scandir("./PxPUC/static/app/problematic_sentences") as entries:
+    with os.scandir(settings.BASE_DIR+"/PxPUC/static/app/problematic_sentences") as entries:
         for entry in entries:
             if entry.is_file():
+                print("Processing file: %s" % entry)
                 with open(entry, encoding = 'cp1252') as csvFile:
                     spamreader = csv.reader(csvFile, delimiter=',', quotechar='"')
                     for row in spamreader:
@@ -26,7 +28,7 @@ def run():
                             Problematic_Sentence.objects.get_or_create(location=location, text=strip_periods(row[3]), impact=row[5], restrict_interrogation=True)
                         if row[4] == "Disqualifies Complaints":
                             Problematic_Sentence.objects.get_or_create(location=location, text=strip_periods(row[3]), impact=row[5], disqualify_complaints=True)
-							
+
 def strip_periods(txt):
     txt = re.sub('\.\.+', '.', txt)
-    return txt    
+    return txt
